@@ -3,9 +3,9 @@ using MasPatas.Domain.Entities;
 namespace MasPatas.Application.DTOs;
 
 public record CreateSaleItemRequest(Guid ProductId, int Quantity, decimal Price);
-public record CreateSaleCommand(Guid? CustomerId, List<CreateSaleItemRequest> Items, string RequestId, Guid UserId);
-public record RegisterPaymentCommand(Guid SaleId, string PaymentMethod, decimal Amount, string RequestId, Guid UserId);
-public record CancelSaleCommand(Guid SaleId, string RequestId, Guid UserId);
+public record CreateSaleCommand(Guid? CustomerId, List<CreateSaleItemRequest> Items, string RequestId);
+public record RegisterPaymentCommand(Guid SaleId, string PaymentMethod, decimal Amount, string RequestId);
+public record CancelSaleCommand(Guid SaleId, string RequestId);
 
 public record SaleItemDto(Guid ProductId, int Quantity, decimal UnitPrice);
 public record PaymentDto(Guid PaymentId, Guid SaleId, string PaymentMethod, decimal Amount, DateTime PaidAt, string RequestId);
