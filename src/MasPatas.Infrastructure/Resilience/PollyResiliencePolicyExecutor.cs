@@ -8,31 +8,49 @@ namespace MasPatas.Infrastructure.Resilience;
 
 public class PollyResiliencePolicyExecutor : IResiliencePolicyExecutor
 {
-    private readonly AsyncPolicyWrap _policyWrap;
+    public PollyResiliencePolicyExecutor() { }
 
-    public PollyResiliencePolicyExecutor()
+    public async Task<T> ExecuteAsync<T>(
+    Func<CancellationToken, Task<T>> action,
+    CancellationToken cancellationToken = default)
     {
-        var retry = Policy
+        var retry = Policy<T>
             .Handle<TimeoutRejectedException>()
             .Or<MongoDB.Driver.MongoException>()
-            .WaitAndRetryAsync(3, attempt => TimeSpan.FromMilliseconds(150 * attempt));
+            .WaitAndRetryAsync(3, attempt =>
+            {
+                var jitter = Random.Shared.Next(50, 150);
+                return TimeSpan.FromMilliseconds(150 * attempt + jitter);
+            });
 
-        var circuit = Policy
-            .Handle<Exception>()
+        var circuit = Policy<T>
+            .Handle<TimeoutRejectedException>()
+            .Or<MongoDB.Driver.MongoException>()
             .CircuitBreakerAsync(5, TimeSpan.FromSeconds(30));
 
-        var bulkhead = Policy.BulkheadAsync(50, int.MaxValue);
-        var timeout = Policy.TimeoutAsync(TimeSpan.FromSeconds(8));
+        var bulkhead = Policy.BulkheadAsync<T>(50, 100);
 
-        var fallback = Policy
+        var timeout = Policy.TimeoutAsync<T>(
+            TimeSpan.FromSeconds(8),
+            TimeoutStrategy.Pessimistic);
+
+        var fallback = Policy<T>
             .Handle<BrokenCircuitException>()
             .Or<MongoDB.Driver.MongoConnectionException>()
             .Or<TimeoutRejectedException>()
-            .FallbackAsync(async ct => throw new InvalidOperationException("Servicio temporalmente no disponible. Reintente en unos segundos."));
+            .FallbackAsync(ct => Task.FromException<T>(
+                new InvalidOperationException(
+                    "Servicio temporalmente no disponible. Reintente en unos segundos.")
+            ));
 
-        _policyWrap = Policy.WrapAsync(fallback, retry, circuit, bulkhead, timeout);
+        var policyWrap = Policy.WrapAsync(
+            fallback,
+            retry,
+            circuit,
+            timeout,
+            bulkhead
+        );
+
+        return await policyWrap.ExecuteAsync(action, cancellationToken);
     }
-
-    public Task<T> ExecuteAsync<T>(Func<CancellationToken, Task<T>> action, CancellationToken cancellationToken = default)
-        => _policyWrap.ExecuteAsync(action, cancellationToken);
 }

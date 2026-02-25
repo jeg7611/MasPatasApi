@@ -5,8 +5,8 @@ namespace MasPatas.API.Services;
 
 public class TestUserSeederHostedService : IHostedService
 {
-    private const string TestUsername = "test.admin";
-    private const string TestPassword = "Test12345!";
+    private const string TestUsername = "admin";
+    private const string TestPassword = "123456";
 
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<TestUserSeederHostedService> _logger;

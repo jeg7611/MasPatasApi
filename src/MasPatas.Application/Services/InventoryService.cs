@@ -30,7 +30,7 @@ public class InventoryService
     public async Task<InventoryMovementDto> AddInventoryMovementAsync(AddInventoryMovementRequest request, CancellationToken cancellationToken = default)
     {
         var inventory = await _inventoryRepository.GetByProductIdAsync(request.ProductId, cancellationToken)
-            ?? new Inventory { ProductId = request.ProductId, Stock = 0, MinimumStock = 0 };
+            ?? new Inventory { ProductId = request.ProductId, Stock = 0, MinimumStock = 10 };
 
         var normalizedType = request.Type.ToUpperInvariant();
         if (normalizedType == "IN")
