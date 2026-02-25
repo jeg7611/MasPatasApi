@@ -8,7 +8,6 @@ public class CreateSaleCommandValidator : AbstractValidator<CreateSaleCommand>
     public CreateSaleCommandValidator()
     {
         RuleFor(x => x.RequestId).NotEmpty();
-        RuleFor(x => x.UserId).NotEmpty();
         RuleFor(x => x.Items).NotEmpty().WithMessage("Sale must have at least one item.");
 
         RuleForEach(x => x.Items).ChildRules(item =>
@@ -27,7 +26,6 @@ public class RegisterPaymentCommandValidator : AbstractValidator<RegisterPayment
         RuleFor(x => x.PaymentMethod).NotEmpty();
         RuleFor(x => x.Amount).GreaterThan(0);
         RuleFor(x => x.RequestId).NotEmpty();
-        RuleFor(x => x.UserId).NotEmpty();
     }
 }
 
@@ -37,6 +35,5 @@ public class CancelSaleCommandValidator : AbstractValidator<CancelSaleCommand>
     {
         RuleFor(x => x.SaleId).NotEmpty();
         RuleFor(x => x.RequestId).NotEmpty();
-        RuleFor(x => x.UserId).NotEmpty();
     }
 }

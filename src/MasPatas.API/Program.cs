@@ -4,6 +4,7 @@ using FluentValidation.AspNetCore;
 using MasPatas.API.Middleware;
 using MasPatas.API.Services;
 using MasPatas.Application.DependencyInjection;
+using MasPatas.Application.Interfaces;
 using MasPatas.Infrastructure.Configuration;
 using MasPatas.Infrastructure.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -16,7 +17,10 @@ using MongoDB.Bson.Serialization.Serializers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ===== Configuración MongoDB GUIDs global =====
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+// ===== ConfiguraciÃ³n MongoDB GUIDs global =====
 BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
 
 // Clean Architecture composition root: API wires Application + Infrastructure.

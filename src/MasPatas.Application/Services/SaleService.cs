@@ -15,6 +15,7 @@ public class SaleService
     private readonly IMongoTransactionManager _transactionManager;
     private readonly IResiliencePolicyExecutor _resilience;
     private readonly IMapper _mapper;
+    private readonly ICurrentUserService _currentUser;
 
     public SaleService(
         ISaleRepository saleRepository,
@@ -24,7 +25,8 @@ public class SaleService
         IIdempotencyRepository idempotencyRepository,
         IMongoTransactionManager transactionManager,
         IResiliencePolicyExecutor resilience,
-        IMapper mapper)
+        IMapper mapper,
+        ICurrentUserService currentUser)
     {
         _saleRepository = saleRepository;
         _inventoryRepository = inventoryRepository;
@@ -34,6 +36,7 @@ public class SaleService
         _transactionManager = transactionManager;
         _resilience = resilience;
         _mapper = mapper;
+        _currentUser = currentUser;
     }
 
     public async Task<SaleDto> CreateSaleAsync(CreateSaleCommand command, CancellationToken cancellationToken = default)
@@ -97,7 +100,7 @@ public class SaleService
                     EntityType = "Sale",
                     EntityId = sale.Id.ToString(),
                     Action = "Sell",
-                    UserId = command.UserId,
+                    UserId = _currentUser.UserId,
                     RequestId = command.RequestId,
                     Timestamp = DateTime.UtcNow,
                     Changes = $"{{\"status\":\"{sale.Status}\",\"totalAmount\":{sale.TotalAmount}}}"
@@ -162,7 +165,7 @@ public class SaleService
                     EntityType = "Payment",
                     EntityId = payment.PaymentId.ToString(),
                     Action = "Pay",
-                    UserId = command.UserId,
+                    UserId = _currentUser.UserId,
                     RequestId = command.RequestId,
                     Timestamp = DateTime.UtcNow,
                     Changes = $"{{\"saleId\":\"{sale.Id}\",\"amount\":{payment.Amount},\"method\":\"{payment.PaymentMethod}\"}}"
@@ -216,7 +219,7 @@ public class SaleService
                     EntityType = "Sale",
                     EntityId = sale.Id.ToString(),
                     Action = "Cancel",
-                    UserId = command.UserId,
+                    UserId = _currentUser.UserId,
                     RequestId = command.RequestId,
                     Timestamp = DateTime.UtcNow,
                     Changes = "{\"status\":\"Cancelled\"}"
