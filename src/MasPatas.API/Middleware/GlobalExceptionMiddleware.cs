@@ -25,6 +25,17 @@ public class GlobalExceptionMiddleware
             // Request cancelada por el cliente ? no es error real
             context.Response.StatusCode = StatusCodes.Status499ClientClosedRequest;
         }
+        catch (BusinessException ex)
+        {
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+
+            await context.Response.WriteAsJsonAsync(new
+            {
+                message = ex.Message
+            });
+
+            return;
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled exception");

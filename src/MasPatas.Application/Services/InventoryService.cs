@@ -39,11 +39,14 @@ public class InventoryService
         }
         else if (normalizedType == "OUT")
         {
-            inventory.Stock -= request.Quantity;
-            if (inventory.Stock < 0)
+            if (inventory.Stock < request.Quantity)
             {
-                throw new InvalidOperationException("Not enough stock for OUT movement.");
+                throw new BusinessException(
+                    $"Not enough stock. Available: {inventory.Stock}"
+                );
             }
+
+            inventory.Stock -= request.Quantity;
         }
 
         await _inventoryRepository.UpsertAsync(inventory, cancellationToken);

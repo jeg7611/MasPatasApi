@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MasPatas.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f35216e5f6cea8fe5de9d64c59331295fe93045e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+99c3a2bd8cdf0cc12bd79caf128b508decf46c71")]
 [assembly: System.Reflection.AssemblyProductAttribute("MasPatas.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MasPatas.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

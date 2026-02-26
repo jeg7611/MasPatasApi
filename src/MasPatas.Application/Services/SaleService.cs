@@ -9,6 +9,7 @@ public class SaleService
 {
     private readonly ISaleRepository _saleRepository;
     private readonly IInventoryRepository _inventoryRepository;
+    private readonly IProductRepository _productRepository;
     private readonly IInventoryMovementRepository _inventoryMovementRepository;
     private readonly IAuditLogRepository _auditLogRepository;
     private readonly IIdempotencyRepository _idempotencyRepository;
@@ -20,6 +21,7 @@ public class SaleService
     public SaleService(
         ISaleRepository saleRepository,
         IInventoryRepository inventoryRepository,
+        IProductRepository productRepository,
         IInventoryMovementRepository inventoryMovementRepository,
         IAuditLogRepository auditLogRepository,
         IIdempotencyRepository idempotencyRepository,
@@ -30,6 +32,7 @@ public class SaleService
     {
         _saleRepository = saleRepository;
         _inventoryRepository = inventoryRepository;
+        _productRepository = productRepository; 
         _inventoryMovementRepository = inventoryMovementRepository;
         _auditLogRepository = auditLogRepository;
         _idempotencyRepository = idempotencyRepository;
@@ -72,9 +75,10 @@ public class SaleService
                 foreach (var item in sale.Items)
                 {
                     var reserved = await _inventoryRepository.ReserveStockAsync(item.ProductId, item.Quantity, session, ct);
+                    var product = await _productRepository.GetByIdAsync(item.ProductId, ct);
                     if (!reserved)
                     {
-                        throw new InvalidOperationException($"Not enough stock for product {item.ProductId}");
+                        throw new BusinessException($"Not enough stock for product {product?.Name ?? "Unknown"}");
                     }
 
                     await _inventoryMovementRepository.CreateAsync(new InventoryMovement
